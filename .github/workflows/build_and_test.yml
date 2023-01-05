@@ -48,7 +48,7 @@ jobs:
         if: ${{ runner.os == 'Windows' }}
         run: |
           mkdir -p ~/.jep-distro/jep
-          ls -al ${{ env.pythonLocation }}/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/
+          ls ${{ env.pythonLocation }}/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/
           cp ${{ env.pythonLocation }}/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/jep/jep.dll ~/.jep-distro/jep/
   archive_and_build:
     name: Archive and build
