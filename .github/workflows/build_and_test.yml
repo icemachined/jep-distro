@@ -73,7 +73,7 @@ jobs:
           key: jep-distro
           restore-keys: |
             jep-distro
-      - name: Copy jep artifacts on macOS
-        if: ${{ runner.os == 'macOS' }}
+      - name: Archive jep artifacts
         run: |
+          ls -al ~/.jep-distro/jep/
           tar czvf ~/.jep-distro/jep-distro.tar.gz ~/.jep-distro/jep
