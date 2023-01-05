@@ -30,6 +30,7 @@ jobs:
         with:
           path: ~/.jep-distro
           key: jep-distro
+          enableCrossOsArchive: true
           restore-keys: |
             jep-distro
       - name: Copy jep artifacts on Linux
@@ -45,7 +46,6 @@ jobs:
       - name: Copy jep artifacts on Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
-          ls ${{ env.pythonLocation }}/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/
           cp ${{ env.pythonLocation }}/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/jep/jep.dll ~/.jep-distro/jep/
   archive_and_build:
     name: Archive and build
