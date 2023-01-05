@@ -35,7 +35,7 @@ jobs:
       - name: Copy jep artifacts on Linux
         if: ${{ runner.os == 'Linux' }}
         run: |
-          mkdir ~/.jep-distro/jep
+          mkdir -p ~/.jep-distro/jep
           cp -L ${{ env.pythonLocation }}/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/jep/libjep.so ~/.jep-distro/jep/
           cp ${{ env.pythonLocation }}/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/jep/*.py ~/.jep-distro/jep/
       - name: Copy jep artifacts on macOS
