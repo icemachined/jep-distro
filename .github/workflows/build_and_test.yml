@@ -47,7 +47,7 @@ jobs:
       - name: Copy jep artifacts on Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
-          mkdir -p ~/.jep-distro/jep
+          mkdir -f ~/.jep-distro/jep
           cp ${{ env.pythonLocation }}/lib/site-packages/jep/jep.dll ~/.jep-distro/jep/
   archive_and_build:
     name: Archive and build
