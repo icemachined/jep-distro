@@ -100,4 +100,6 @@ jobs:
       - name: Archive jep artifacts
         run: |
           ls -al ~/.jep-distro-*/jep/*
+          ls -al ~/.jep-distro-Windows
+          ls -al ~/.jep-distro-Windows/*/*
           tar czvf ~/jep-distro.tar.gz ~/.jep-distro-*/jep/*
