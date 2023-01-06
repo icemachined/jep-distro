@@ -28,7 +28,7 @@ jobs:
       - name: Cache jep-distro
         uses: actions/cache@v3
         with:
-          path: ~/.jep-distro
+          path: ~/.jep-distro-${{ runner.os }}
           key: ${{ runner.os }}-jep-distro
           restore-keys: |
             ${{ runner.os }}-jep-distro
@@ -67,27 +67,27 @@ jobs:
           java-version: 1.11
       - name: create cache folders
         run: |
-          mkdir ~/.jep-distro-linux
-          mkdir ~/.jep-distro-macos
-          mkdir ~/.jep-distro-windows
+          mkdir ~/.jep-distro-Linux
+          mkdir ~/.jep-distro-macOS
+          mkdir ~/.jep-distro-Windows
       - name: Cache jep-distro
         uses: actions/cache@v3
         with:
-          path: ~/.jep-distro-linux
+          path: ~/.jep-distro-Linux
           key: Linux-jep-distro
           restore-keys: |
             Linux-jep-distro
       - name: Cache jep-distro
         uses: actions/cache@v3
         with:
-          path: ~/.jep-distro-macos
+          path: ~/.jep-distro-macOS
           key: macOS-jep-distro
           restore-keys: |
             macOS-jep-distro
       - name: Cache jep-distro
         uses: actions/cache@v3
         with:
-          path: ~/.jep-distro-windows
+          path: ~/.jep-distro-Windows
           key: Windows-jep-distro
           restore-keys: |
             Windows-jep-distro
