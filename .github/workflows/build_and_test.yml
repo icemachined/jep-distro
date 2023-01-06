@@ -97,5 +97,6 @@ jobs:
         run: |
           ls -al ~/jep-distro-*/jep/*
           ls -al ~/*
-          ls -al /home/runner/work/jep-distro/jep-distro/C::/Users/runneradmin/jep-distro-Windows/jep/
+          ls -al /home/runner/work/jep-distro/jep-distro/*
+          find /home/runner/work/jep-distro/jep-distro -name "jep.dll"
           tar czvf ~/jep-distro.tar.gz ~/.jep-distro-*/jep/*
