@@ -29,10 +29,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.jep-distro
-          key: jep-distro
-          enableCrossOsArchive: true
+          key: ${{ runner.os }}-jep-distro
           restore-keys: |
-            jep-distro
+            ${{ runner.os }}-jep-distro
       - name: Copy jep artifacts on Linux
         if: ${{ runner.os == 'Linux' }}
         run: |
@@ -69,12 +68,25 @@ jobs:
       - name: Cache jep-distro
         uses: actions/cache@v3
         with:
-          path: ~/.jep-distro
-          key: jep-distro
-          enableCrossOsArchive: true
+          path: ~/.jep-distro-linux
+          key: Linux-jep-distro
           restore-keys: |
-            jep-distro
+            Linux-jep-distro
+      - name: Cache jep-distro
+        uses: actions/cache@v3
+        with:
+          path: ~/.jep-distro-macos
+          key: macOS-jep-distro
+          restore-keys: |
+            macOS-jep-distro
+      - name: Cache jep-distro
+        uses: actions/cache@v3
+        with:
+          path: ~/.jep-distro-windows
+          key: Windows-jep-distro
+          restore-keys: |
+            Windows-jep-distro
       - name: Archive jep artifacts
         run: |
-          ls -al ~/.jep-distro/jep/
-          tar czvf ~/.jep-distro/jep-distro.tar.gz ~/.jep-distro/jep
+          ls -al ~/.jep-distro-*/jep/*
+          tar czvf ~/jep-distro.tar.gz ~/.jep-distro-*/jep/*
