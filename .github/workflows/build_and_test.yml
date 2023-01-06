@@ -35,18 +35,18 @@ jobs:
       - name: Copy jep artifacts on Linux
         if: ${{ runner.os == 'Linux' }}
         run: |
-          mkdir -p ~/.jep-distro/jep
+          mkdir -p ~/.jep-distro-${{ runner.os }}/jep
           cp -L ${{ env.pythonLocation }}/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/jep/libjep.so ~/.jep-distro/jep/
           cp ${{ env.pythonLocation }}/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/jep/*.py ~/.jep-distro/jep/
       - name: Copy jep artifacts on macOS
         if: ${{ runner.os == 'macOS' }}
         run: |
-          mkdir -p ~/.jep-distro/jep
+          mkdir -p ~/.jep-distro-${{ runner.os }}/jep
           cp ${{ env.pythonLocation }}/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/jep/libjep.jnilib ~/.jep-distro/jep/
       - name: Copy jep artifacts on Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
-          mkdir -f ~/.jep-distro/jep
+          mkdir -f ~/.jep-distro-${{ runner.os }}/jep
           cp ${{ env.pythonLocation }}/lib/site-packages/jep/jep.dll ~/.jep-distro/jep/
   archive_and_build:
     name: Archive and build
