@@ -97,6 +97,5 @@ jobs:
         run: |
           ls -al ~/jep-distro-*/jep/*
           ls -al ~/*
-          ls -al ~/jep-distro-Windows
           ls -al /home/runner/work/jep-distro/jep-distro/*
           tar czvf ~/jep-distro.tar.gz ~/.jep-distro-*/jep/*
