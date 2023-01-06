@@ -26,7 +26,7 @@ jobs:
         run: |
           pip3 install jep
       - name: Cache jep-distro
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.jep-distro
           key: jep-distro
@@ -67,7 +67,7 @@ jobs:
         with:
           java-version: 1.11
       - name: Cache jep-distro
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.jep-distro
           key: jep-distro
