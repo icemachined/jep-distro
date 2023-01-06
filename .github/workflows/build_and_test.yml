@@ -71,6 +71,7 @@ jobs:
         with:
           path: ~/.jep-distro
           key: jep-distro
+          enableCrossOsArchive: true
           restore-keys: |
             jep-distro
       - name: Archive jep artifacts
