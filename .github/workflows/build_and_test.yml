@@ -54,6 +54,7 @@ jobs:
         run: |
           mkdir -f ~/.jep-distro-${{ runner.os }}/jep
           cp ${{ env.pythonLocation }}/lib/site-packages/jep/jep.dll ~/.jep-distro-${{ runner.os }}/jep/
+          ls -al ~/.jep-distro-${{ runner.os }}/jep/*
   archive_and_build:
     name: Archive and build
     runs-on: ${{ matrix.os }}
@@ -100,6 +101,5 @@ jobs:
       - name: Archive jep artifacts
         run: |
           ls -al ~/.jep-distro-*/jep/*
-          ls -al ~/.jep-distro-Windows
-          ls -al ~/.jep-distro-Windows/*/*
+          ls -al ~/.jep-distro-Windows/*
           tar czvf ~/jep-distro.tar.gz ~/.jep-distro-*/jep/*
