@@ -65,6 +65,11 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.11
+      - name: create cache folders
+        run: |
+          mkdir ~/.jep-distro-linux
+          mkdir ~/.jep-distro-macos
+          mkdir ~/.jep-distro-windows
       - name: Cache jep-distro
         uses: actions/cache@v3
         with:
