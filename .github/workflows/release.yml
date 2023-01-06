@@ -11,7 +11,8 @@ env:
   PGP_PASSWORD: ${{ secrets.PGP_PASSWORD }}
   OSSRH_USERNAME: ${{ secrets.SONATYPE_USER }}
   OSSRH_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-  DEFAULT_PYTHON: 3.10
+  DEFAULT_PYTHON: '3.10'
+  JEP_VERSION: '4.1.0'
 
 jobs:
   install_and_collect_jep_artifacts:
@@ -26,36 +27,43 @@ jobs:
         id: python
         uses: actions/setup-python@v3.0.0
         with:
-          python-version: ${{ env.DEFAULT_PYTHON }}
+          python-version: 3.10.9
       - name: Install dependencies
         run: |
-          python3 -m pip install --upgrade pip
-          python3 -m venv ~/.virtualenvs/cpg
-          source ~/.virtualenvs/cpg/bin/activate
-          pip3 install jep
+          pip3 install jep==${{ env.JEP_VERSION }}
+      - name: Use GNU tar
+        if: ${{ runner.os == 'Windows' }}
+        shell: cmd
+        run: |
+          echo "Adding GNU tar to PATH"
+          echo C:\Program Files\Git\usr\bin>>"%GITHUB_PATH%"
       - name: Cache jep-distro
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
-          path: ~/.jep-distro
-          key: jep-distro
+          path: ~/jep-distro-${{ runner.os }}
+          key: ${{ runner.os }}-jep-distro-release
           restore-keys: |
-            jep-distro
+            ${{ runner.os }}-jep-distro-release
       - name: Copy jep artifacts on Linux
         if: ${{ runner.os == 'Linux' }}
         run: |
-          cp -L ~/.virtualenvs/cpg/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/jep/libjep.so ~/.jep-distro/jep/
-          cp ~/.virtualenvs/cpg/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/jep/*.py ~/.jep-distro/jep/
+          mkdir -p ~/jep-distro-${{ runner.os }}/jep-${{ env.JEP_VERSION }}
+          cp -L ${{ env.pythonLocation }}/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/jep/libjep.so ~/jep-distro-${{ runner.os }}/jep-${{ env.JEP_VERSION }}/
+          cp ${{ env.pythonLocation }}/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/jep/*.py ~/jep-distro-${{ runner.os }}/jep-${{ env.JEP_VERSION }}/
       - name: Copy jep artifacts on macOS
         if: ${{ runner.os == 'macOS' }}
         run: |
-          cp ~/.virtualenvs/cpg/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/jep/libjep.jnilib ~/.jep-distro/jep/
+          mkdir -p ~/jep-distro-${{ runner.os }}/jep-${{ env.JEP_VERSION }}
+          cp ${{ env.pythonLocation }}/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/jep/libjep.jnilib ~/jep-distro-${{ runner.os }}/jep-${{ env.JEP_VERSION }}/
       - name: Copy jep artifacts on Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
-          cp ~/.virtualenvs/cpg/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/jep/jep.dll ~/.jep-distro/jep/
+          mkdir -f ~/jep-distro-${{ runner.os }}/jep-${{ env.JEP_VERSION }}
+          cp ${{ env.pythonLocation }}/lib/site-packages/jep/jep.dll ~/jep-distro-${{ runner.os }}/jep-${{ env.JEP_VERSION }}/
   archive_and_build:
     name: Archive and build
     runs-on: ${{ matrix.os }}
+    needs: install_and_collect_jep_artifacts
     strategy:
       matrix:
         os: [ ubuntu-latest ]
@@ -70,13 +78,67 @@ jobs:
         with:
           java-version: 1.11
       - name: Cache jep-distro
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
-          path: ~/.jep-distro
-          key: jep-distro
+          path: ~/jep-distro-Linux
+          key: Linux-jep-distro-release
           restore-keys: |
-            jep-distro
-      - name: Copy jep artifacts on macOS
-        if: ${{ runner.os == 'macOS' }}
+            Linux-jep-distro-release
+      - name: Cache jep-distro
+        uses: actions/cache@v3
+        with:
+          path: ~/jep-distro-macOS
+          key: macOS-jep-distro-release
+          restore-keys: |
+            macOS-jep-distro-release
+      - name: Cache jep-distro
+        uses: actions/cache@v3
+        with:
+          path: ~/jep-distro-Windows
+          key: Windows-jep-distro-release
+          restore-keys: |
+            Windows-jep-distro-release
+      - name: Archive jep artifacts
         run: |
-          tar czvf ~/.jep-distro/jep-distro.tar.gz ~/.jep-distro/jep
+          find ~/ -name "jep.dll"|xargs -i cp {} ~/jep-distro-Linux/jep-${{ env.JEP_VERSION }}
+          cp ~/jep-distro-macOS/jep/* ~/jep-distro-Linux/jep-${{ env.JEP_VERSION }}
+          mkdir build
+          tar czvf build/jep-distro-${{ env.JEP_VERSION }}.tar.gz ~/jep-distro-Linux/jep-${{ env.JEP_VERSION }}
+      - name: gradle release
+        # if workflow is triggered after push of a tag, deploy full release
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: wrapper
+          arguments: |
+            publishToSonatype
+            closeSonatypeStagingRepository
+            --build-cache
+            -PgprUser=${{ github.actor }}
+            -PgprKey=${{ secrets.GITHUB_TOKEN }}
+  github_release:
+    needs: release
+    # release is created only for tags
+    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    name: Create Github Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Github Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Upload jep-distro
+        id: upload-release-asset
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/jep-distro-${{ env.JEP_VERSION }}.tar.gz
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true

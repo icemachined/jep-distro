@@ -95,7 +95,7 @@ jobs:
             Windows-jep-distro
       - name: Archive jep artifacts
         run: |
-          find /home/runner/work/jep-distro/jep-distro -name "jep.dll"|xargs -i cp {} ~/jep-distro-Linux/jep-${{ env.JEP_VERSION }}
+          find ~/ -name "jep.dll"|xargs -i cp {} ~/jep-distro-Linux/jep-${{ env.JEP_VERSION }}
           cp ~/jep-distro-macOS/jep/* ~/jep-distro-Linux/jep-${{ env.JEP_VERSION }}
           mkdir build
           tar czvf build/jep-distro-${{ env.JEP_VERSION }}.tar.gz ~/jep-distro-Linux/jep-${{ env.JEP_VERSION }}
