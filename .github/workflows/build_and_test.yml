@@ -34,27 +34,27 @@ jobs:
       - name: Cache jep-distro
         uses: actions/cache@v3
         with:
-          path: ~/.jep-distro-${{ runner.os }}
+          path: ~/jep-distro-${{ runner.os }}
           key: ${{ runner.os }}-jep-distro
           restore-keys: |
             ${{ runner.os }}-jep-distro
       - name: Copy jep artifacts on Linux
         if: ${{ runner.os == 'Linux' }}
         run: |
-          mkdir -p ~/.jep-distro-${{ runner.os }}/jep
-          cp -L ${{ env.pythonLocation }}/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/jep/libjep.so ~/.jep-distro-${{ runner.os }}/jep/
-          cp ${{ env.pythonLocation }}/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/jep/*.py ~/.jep-distro-${{ runner.os }}/jep/
+          mkdir -p ~/jep-distro-${{ runner.os }}/jep
+          cp -L ${{ env.pythonLocation }}/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/jep/libjep.so ~/jep-distro-${{ runner.os }}/jep/
+          cp ${{ env.pythonLocation }}/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/jep/*.py ~/jep-distro-${{ runner.os }}/jep/
       - name: Copy jep artifacts on macOS
         if: ${{ runner.os == 'macOS' }}
         run: |
-          mkdir -p ~/.jep-distro-${{ runner.os }}/jep
-          cp ${{ env.pythonLocation }}/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/jep/libjep.jnilib ~/.jep-distro-${{ runner.os }}/jep/
+          mkdir -p ~/jep-distro-${{ runner.os }}/jep
+          cp ${{ env.pythonLocation }}/lib/python${{ env.DEFAULT_PYTHON }}/site-packages/jep/libjep.jnilib ~/jep-distro-${{ runner.os }}/jep/
       - name: Copy jep artifacts on Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
-          mkdir -f ~/.jep-distro-${{ runner.os }}/jep
-          cp ${{ env.pythonLocation }}/lib/site-packages/jep/jep.dll ~/.jep-distro-${{ runner.os }}/jep/
-          ls ~/.jep-distro-${{ runner.os }}/jep/*
+          mkdir -f ~/jep-distro-${{ runner.os }}/jep
+          cp ${{ env.pythonLocation }}/lib/site-packages/jep/jep.dll ~/jep-distro-${{ runner.os }}/jep/
+          ls ~/jep-distro-${{ runner.os }}/jep/*
   archive_and_build:
     name: Archive and build
     runs-on: ${{ matrix.os }}
@@ -72,35 +72,31 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.11
-      - name: create cache folders
-        run: |
-          mkdir ~/.jep-distro-Linux
-          mkdir ~/.jep-distro-macOS
-          mkdir ~/.jep-distro-Windows
       - name: Cache jep-distro
         uses: actions/cache@v3
         with:
-          path: ~/.jep-distro-Linux
+          path: ~/jep-distro-Linux
           key: Linux-jep-distro
           restore-keys: |
             Linux-jep-distro
       - name: Cache jep-distro
         uses: actions/cache@v3
         with:
-          path: ~/.jep-distro-macOS
+          path: ~/jep-distro-macOS
           key: macOS-jep-distro
           restore-keys: |
             macOS-jep-distro
       - name: Cache jep-distro
         uses: actions/cache@v3
         with:
-          path: ~/.jep-distro-Windows
+          path: ~/jep-distro-Windows
           key: Windows-jep-distro
           restore-keys: |
             Windows-jep-distro
       - name: Archive jep artifacts
         run: |
-          ls -al ~/.jep-distro-*/jep/*
+          ls -al ~/jep-distro-*/jep/*
           ls -al ~/*
-          ls -al ~/.jep-distro-Windows
+          ls -al ~/jep-distro-Windows
+          ls -al /home/runner/work/jep-distro/jep-distro/*
           tar czvf ~/jep-distro.tar.gz ~/.jep-distro-*/jep/*
