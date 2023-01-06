@@ -77,21 +77,21 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.11
-      - name: Cache jep-distro
+      - name: Cache jep-distro-Linux
         uses: actions/cache@v3
         with:
           path: ~/jep-distro-Linux
           key: Linux-jep-distro-release
           restore-keys: |
             Linux-jep-distro-release
-      - name: Cache jep-distro
+      - name: Cache jep-distro-macOS
         uses: actions/cache@v3
         with:
           path: ~/jep-distro-macOS
           key: macOS-jep-distro-release
           restore-keys: |
             macOS-jep-distro-release
-      - name: Cache jep-distro
+      - name: Cache jep-distro-Windows
         uses: actions/cache@v3
         with:
           path: ~/jep-distro-Windows
@@ -101,7 +101,7 @@ jobs:
       - name: Archive jep artifacts
         run: |
           find ~/ -name "jep.dll"|xargs -i cp {} ~/jep-distro-Linux/jep-${{ env.JEP_VERSION }}
-          cp ~/jep-distro-macOS/jep/* ~/jep-distro-Linux/jep-${{ env.JEP_VERSION }}
+          cp ~/jep-distro-macOS/jep-${{ env.JEP_VERSION }}/* ~/jep-distro-Linux/jep-${{ env.JEP_VERSION }}
           mkdir build
           tar czvf build/jep-distro-${{ env.JEP_VERSION }}.tar.gz ~/jep-distro-Linux/jep-${{ env.JEP_VERSION }}
       - name: gradle release
