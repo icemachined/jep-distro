@@ -25,6 +25,12 @@ jobs:
       - name: Install dependencies
         run: |
           pip3 install jep
+      - name: Use GNU tar
+        if: ${{ runner.os == 'Windows' }}
+        shell: cmd
+        run: |
+          echo "Adding GNU tar to PATH"
+          echo C:\Program Files\Git\usr\bin>>"%GITHUB_PATH%"
       - name: Cache jep-distro
         uses: actions/cache@v3
         with:
