@@ -99,4 +99,7 @@ jobs:
           ls -al ~/*
           ls -al /home/runner/work/jep-distro/jep-distro/*
           find /home/runner/work/jep-distro/jep-distro -name "jep.dll"
-          tar czvf ~/jep-distro.tar.gz ~/.jep-distro-*/jep/*
+          pwd
+          mkdir /tmp/jep
+          cp ~/.jep-distro-*/jep/* /tmp/jep
+          tar czvf ~/jep-distro.tar.gz /tmp/jep
