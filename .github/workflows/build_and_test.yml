@@ -107,7 +107,7 @@ jobs:
           BRANCH=${{ github.ref }}
 
           echo "Fetching list of cache key"
-          cacheKeysForPR=['"Windows-jep-distro"', '"Linux-jep-distro"', '"macOS-jep-distro"']
+          #cacheKeysForPR=['"Windows-jep-distro"', '"Linux-jep-distro"', '"macOS-jep-distro"']
           allcacheKeys=$(gh actions-cache list -R $REPO -B $BRANCH | cut -f 1 )
           
           echo "allcacheKeys=$allcacheKeys"
