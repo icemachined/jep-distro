@@ -108,7 +108,9 @@ jobs:
 
           echo "Fetching list of cache key"
           cacheKeysForPR=['"Windows-jep-distro"', '"Linux-jep-distro"', '"macOS-jep-distro"']
-
+          allcacheKeys=$(gh actions-cache list -R $REPO -B $BRANCH | cut -f 1 )
+          
+          echo "allcacheKeys=$allcacheKeys"
           ## Setting this to not fail the workflow while deleting cache keys. 
           set +e
           echo "Deleting caches..."
