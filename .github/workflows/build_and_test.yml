@@ -37,6 +37,7 @@ jobs:
         with:
           path: jep-distro-${{ runner.os }}
           key: ${{ runner.os }}-jep-distro
+          enableCrossOsArchive: true
           restore-keys: |
             ${{ runner.os }}-jep-distro
       - name: Copy jep artifacts on Linux
@@ -69,6 +70,7 @@ jobs:
         with:
           path: jep-distro-Linux
           key: Linux-jep-distro
+          enableCrossOsArchive: true
           restore-keys: |
             Linux-jep-distro
       - name: Cache jep-distro-macOS
@@ -76,6 +78,7 @@ jobs:
         with:
           path: jep-distro-macOS
           key: macOS-jep-distro
+          enableCrossOsArchive: true
           restore-keys: |
             macOS-jep-distro
       - name: Cache jep-distro-Windows
@@ -83,11 +86,12 @@ jobs:
         with:
           path: jep-distro-Windows
           key: Windows-jep-distro
+          enableCrossOsArchive: true
           restore-keys: |
             Windows-jep-distro
       - name: Archive jep artifacts
         run: |
-          echo `find ~/ -name "jep.dll"`
+          ls -al ../**/*
           find ~/ -name "jep.dll"|xargs -i cp {} jep-distro-Linux/jep-${{ env.JEP_VERSION }}
           cp jep-distro-macOS/jep-${{ env.JEP_VERSION }}/* jep-distro-Linux/jep-${{ env.JEP_VERSION }}
           mkdir build
