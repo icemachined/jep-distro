@@ -99,6 +99,13 @@ jobs:
           cp ~/jep-distro-macOS/jep-${{ env.JEP_VERSION }}/* ~/jep-distro-Linux/jep-${{ env.JEP_VERSION }}
           mkdir build
           tar czvf build/jep-distro-${{ env.JEP_VERSION }}.tar.gz ~/jep-distro-Linux/jep-${{ env.JEP_VERSION }}
+      - name: gradle build
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: wrapper
+          arguments: |
+            build
+            --build-cache
       - name: Cleanup
         run: |
           gh extension install actions/gh-actions-cache
