@@ -3,7 +3,7 @@ name: Create release to Maven Central
 on:
   push:
     tags:
-      - 'v*'
+      - '*'
     branches:
       - master
 env:
@@ -96,10 +96,12 @@ jobs:
             Windows-jep-distro-release
       - name: Archive jep artifacts
         run: |
-          cp jep-distro-Windows/jep-${{ env.JEP_VERSION }}/* jep-distro-Linux/jep-${{ env.JEP_VERSION }}
-          cp jep-distro-macOS/jep-${{ env.JEP_VERSION }}/* jep-distro-Linux/jep-${{ env.JEP_VERSION }}
+          mkdir -p jep-distro/jep
+          cp jep-distro-Linux/jep-${{ env.JEP_VERSION }}/* jep-distro/jep
+          cp jep-distro-Windows/jep-${{ env.JEP_VERSION }}/* jep-distro/jep
+          cp jep-distro-macOS/jep-${{ env.JEP_VERSION }}/* jep-distro/jep
           mkdir build
-          tar czvf build/jep-distro-${{ env.JEP_VERSION }}.tar.gz -C jep-distro-Linux jep-${{ env.JEP_VERSION }}
+          tar czvf build/jep-distro-${{ env.JEP_VERSION }}.tar.gz -C jep-distro jep
       - name: Upload artifact
         id: upload_artifact
         uses: actions/upload-artifact@v3
