@@ -69,14 +69,6 @@ jobs:
         os: [ ubuntu-latest ]
 
     steps:
-      # actions/checkout v1.* is needed for correct codecov upload, see https://github.com/actions/checkout/issues/237 for details
-      - uses: actions/checkout@v1
-      # ensure that gradle wrapper files in repository are valid by checking checksums
-      - uses: gradle/wrapper-validation-action@v1
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.11
       - name: Cache jep-distro-Linux
         uses: actions/cache@v3
         with:
@@ -104,56 +96,13 @@ jobs:
           cp ~/jep-distro-macOS/jep-${{ env.JEP_VERSION }}/* ~/jep-distro-Linux/jep-${{ env.JEP_VERSION }}
           mkdir build
           tar czvf build/jep-distro-${{ env.JEP_VERSION }}.tar.gz ~/jep-distro-Linux/jep-${{ env.JEP_VERSION }}
-  github_release:
-    needs: archive_and_build
-    # release is created only for tags
-    if: ${{ startsWith(github.ref, 'refs/tags/') }}
-    name: Create Github Release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Create Github Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload artifact
+        id: upload_artifact
+        uses: actions/upload-artifact@v3
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-  maven_release:
-    needs: github_release
-    # release is created only for tags
-    if: ${{ startsWith(github.ref, 'refs/tags/') }}
-    name: Create maven release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Upload jep-distro
-        id: upload-release-asset
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: build/jep-distro-${{ env.JEP_VERSION }}.tar.gz
-          tag: ${{ github.ref }}
-          overwrite: true
-          file_glob: true
-      - name: gradle release
-        # if workflow is triggered after push of a tag, deploy full release
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
-        uses: gradle/gradle-build-action@v2
-        with:
-          gradle-version: wrapper
-          arguments: |
-            publishToSonatype
-            closeSonatypeStagingRepository
-            --build-cache
-            -PgprUser=${{ github.actor }}
-            -PgprKey=${{ secrets.GITHUB_TOKEN }}
-  clean_caches:
-    needs: maven_release
-    name: Clean release caches
-    runs-on: ubuntu-latest
-    steps:
+          name: jep-distro-${{ env.JEP_VERSION }}
+          path: build/*
+          retention-days: 1
       - name: Cleanup
         run: |
           gh extension install actions/gh-actions-cache
@@ -172,3 +121,68 @@ jobs:
           echo "Done"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  github_release:
+    needs: archive_and_build
+    # release is created only for tags
+    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    name: Create Github Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          path: tmpFolder
+      - name: Create Github Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Upload jep distro
+        id: upload-release-asset
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: tmpFolder/*
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
+  maven_release:
+    needs: archive_and_build
+    # release is created only for tags
+    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    name: Create maven release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          # release workflow should have access to all tags
+          fetch-depth: 0
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          distribution: temurin
+      - name: Status git before
+        run: git status
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          path: build
+      - name: gradle release
+        # if workflow is triggered after push of a tag, deploy full release
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: wrapper
+          arguments: |
+            publishToSonatype
+            closeSonatypeStagingRepository
+            --build-cache
+            -PgprUser=${{ github.actor }}
+            -PgprKey=${{ secrets.GITHUB_TOKEN }}
