@@ -124,8 +124,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   gradle_build:
     needs: archive_and_build
-    # release is created only for tags
-    if: ${{ startsWith(github.ref, 'refs/tags/') }}
     name: Gradle build
     runs-on: ubuntu-latest
     steps:
@@ -150,6 +148,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           gradle-version: wrapper
+          cache-disabled: true
           arguments: |
             build
 
