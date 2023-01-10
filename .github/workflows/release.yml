@@ -104,6 +104,39 @@ jobs:
           cp ~/jep-distro-macOS/jep-${{ env.JEP_VERSION }}/* ~/jep-distro-Linux/jep-${{ env.JEP_VERSION }}
           mkdir build
           tar czvf build/jep-distro-${{ env.JEP_VERSION }}.tar.gz ~/jep-distro-Linux/jep-${{ env.JEP_VERSION }}
+  github_release:
+    needs: archive_and_build
+    # release is created only for tags
+    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    name: Create Github Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Github Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+  maven_release:
+    needs: github_release
+    # release is created only for tags
+    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    name: Create maven release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upload jep-distro
+        id: upload-release-asset
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/jep-distro-${{ env.JEP_VERSION }}.tar.gz
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
       - name: gradle release
         # if workflow is triggered after push of a tag, deploy full release
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
@@ -116,6 +149,11 @@ jobs:
             --build-cache
             -PgprUser=${{ github.actor }}
             -PgprKey=${{ secrets.GITHUB_TOKEN }}
+  clean_caches:
+    needs: maven_release
+    name: Clean release caches
+    runs-on: ubuntu-latest
+    steps:
       - name: Cleanup
         run: |
           gh extension install actions/gh-actions-cache
@@ -134,29 +172,3 @@ jobs:
           echo "Done"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  github_release:
-    needs: archive_and_build
-    # release is created only for tags
-    if: ${{ startsWith(github.ref, 'refs/tags/') }}
-    name: Create Github Release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Create Github Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-      - name: Upload jep-distro
-        id: upload-release-asset
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: build/jep-distro-${{ env.JEP_VERSION }}.tar.gz
-          tag: ${{ github.ref }}
-          overwrite: true
-          file_glob: true
