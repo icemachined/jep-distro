@@ -131,6 +131,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v3
         with:
+          name: jep-distro-${{ env.JEP_VERSION }}
           path: tmpFolder
       - name: Create Github Release
         id: create_release
@@ -147,11 +148,11 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: tmpFolder/**/*
+          file: tmpFolder/*
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true
-  maven_release:
+  gradle_release:
     needs: archive_and_build
     # release is created only for tags
     if: ${{ startsWith(github.ref, 'refs/tags/') }}

@@ -64,48 +64,40 @@ jobs:
         os: [ ubuntu-latest ]
 
     steps:
-      # actions/checkout v1.* is needed for correct codecov upload, see https://github.com/actions/checkout/issues/237 for details
-      - uses: actions/checkout@v1
-      # ensure that gradle wrapper files in repository are valid by checking checksums
-      - uses: gradle/wrapper-validation-action@v1
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.11
       - name: Cache jep-distro-Linux
         uses: actions/cache@v3
         with:
-          path: ~/jep-distro-Linux
+          path: jep-distro-Linux
           key: Linux-jep-distro
           restore-keys: |
             Linux-jep-distro
       - name: Cache jep-distro-macOS
         uses: actions/cache@v3
         with:
-          path: ~/jep-distro-macOS
+          path: jep-distro-macOS
           key: macOS-jep-distro
           restore-keys: |
             macOS-jep-distro
       - name: Cache jep-distro-Windows
         uses: actions/cache@v3
         with:
-          path: ~/jep-distro-Windows
+          path: jep-distro-Windows
           key: Windows-jep-distro
           restore-keys: |
             Windows-jep-distro
       - name: Archive jep artifacts
         run: |
-          find ~/ -name "jep.dll"|xargs -i cp {} ~/jep-distro-Linux/jep-${{ env.JEP_VERSION }}
-          cp ~/jep-distro-macOS/jep-${{ env.JEP_VERSION }}/* ~/jep-distro-Linux/jep-${{ env.JEP_VERSION }}
+          cp jep-distro-Windows/jep-${{ env.JEP_VERSION }}/* jep-distro-Linux/jep-${{ env.JEP_VERSION }}
+          cp jep-distro-macOS/jep-${{ env.JEP_VERSION }}/* jep-distro-Linux/jep-${{ env.JEP_VERSION }}
           mkdir build
-          tar czvf build/jep-distro-${{ env.JEP_VERSION }}.tar.gz ~/jep-distro-Linux/jep-${{ env.JEP_VERSION }}
-      - name: gradle build
-        uses: gradle/gradle-build-action@v2
+          tar czvf build/jep-distro-${{ env.JEP_VERSION }}.tar.gz -C jep-distro-Linux jep-${{ env.JEP_VERSION }}
+      - name: Upload artifact
+        id: upload_artifact
+        uses: actions/upload-artifact@v3
         with:
-          gradle-version: wrapper
-          arguments: |
-            build
-            --build-cache
+          name: jep-distro-${{ env.JEP_VERSION }}
+          path: build/*
+          retention-days: 1
       - name: Cleanup
         run: |
           gh extension install actions/gh-actions-cache
@@ -126,4 +118,34 @@ jobs:
           echo "Done"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
+  gradle_build:
+    needs: archive_and_build
+    # release is created only for tags
+    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    name: Gradle build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          # release workflow should have access to all tags
+          fetch-depth: 0
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          distribution: temurin
+      - name: Status git before
+        run: git status
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: jep-distro-${{ env.JEP_VERSION }}
+          path: build
+      - name: gradle release
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: wrapper
+          arguments: |
+            build
+
