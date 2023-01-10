@@ -116,6 +116,24 @@ jobs:
             --build-cache
             -PgprUser=${{ github.actor }}
             -PgprKey=${{ secrets.GITHUB_TOKEN }}
+      - name: Cleanup
+        run: |
+          gh extension install actions/gh-actions-cache
+          
+          REPO=${{ github.repository }}
+          BRANCH=${{ github.ref }}
+          echo "Fetching list of cache key"
+          cacheKeysForPR="Windows-jep-distro-release Linux-jep-distro-release macOS-jep-distro-release"
+          ## Setting this to not fail the workflow while deleting cache keys. 
+          set +e
+          echo "Deleting caches..."
+          for cacheKey in $cacheKeysForPR
+          do
+              gh actions-cache delete $cacheKey -R $REPO -B $BRANCH --confirm
+          done
+          echo "Done"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   github_release:
     needs: archive_and_build
     # release is created only for tags
