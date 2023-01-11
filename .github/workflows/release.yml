@@ -158,4 +158,39 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true
-
+  gradle_release:
+    needs: archive_and_build
+    # release is created only for tags
+    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    name: Create maven release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          # release workflow should have access to all tags
+          fetch-depth: 0
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          distribution: temurin
+      - name: Status git before
+        run: git status
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          path: build
+      - name: gradle release
+        # if workflow is triggered after push of a tag, deploy full release
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: wrapper
+          cache-disabled: true
+          arguments: |
+            publishToSonatype
+            closeSonatypeStagingRepository
+            --build-cache
+            -PgprUser=${{ github.actor }}
+            -PgprKey=${{ secrets.GITHUB_TOKEN }}

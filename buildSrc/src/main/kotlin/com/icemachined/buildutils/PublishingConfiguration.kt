@@ -63,7 +63,7 @@ fun Project.configurePublishing() {
     // `configureNexusPublishing` adds sonatype publication tasks inside `afterEvaluate`.
     afterEvaluate {
         val publicationsFromMainHost = listOf(
-            "kotlinMultiplatform",
+            "maven",
             "metadata"
         )
         configure<PublishingExtension> {
