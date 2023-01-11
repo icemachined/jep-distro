@@ -185,7 +185,7 @@ jobs:
       - name: unzip jep
         run: |
           cd build
-          tar xzvf jep-distro-${{ env.JEP_VERSION }}
+          tar xzvf jep-distro-${{ env.JEP_VERSION }}.tar.gz
       - name: gradle release
         # if workflow is triggered after push of a tag, deploy full release
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
