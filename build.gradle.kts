@@ -8,8 +8,8 @@ plugins {
 
 group = "com.icemachined"
 version = "4.1.0"
-val gzFile = layout.buildDirectory.file("jep-distro-$version.tar.gz")
-val gzArtifact = artifacts.add("archives", gzFile.get().asFile) {
+val gzFile = layout.buildDirectory.dir("jep")
+val gzArtifact = artifacts.add("archives", gzFile) {
     type = "gz"
 }
 
