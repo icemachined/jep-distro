@@ -180,6 +180,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v3
         with:
+          name: jep-distro-${{ env.JEP_VERSION }}
           path: build
       - name: gradle release
         # if workflow is triggered after push of a tag, deploy full release
