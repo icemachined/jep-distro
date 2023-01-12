@@ -8,10 +8,14 @@ plugins {
 
 group = "com.icemachined"
 version = "4.1.0"
-val gzFile = layout.buildDirectory.dir("jep")
-val gzArtifact = artifacts.add("archives", gzFile) {
-    type = "gz"
+val jepTar: Tar = tasks.create<Tar>("jep-distro") {
+    into ("jep"){
+        from("build/jep")
+        include ("*.*")
+    }
+    compression = Compression.GZIP
 }
+val gzArtifact = artifacts.add("archives", jepTar)
 
 publishing {
     publications {
