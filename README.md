@@ -11,7 +11,9 @@ This distro simplifies jep usage.
 You can use this as a maven dependency. 
 Unpack to your folder and add the following include paths to JepConifg.
 1. Path to platform dependent library (Lunux: libjep.so, Windows: jep.dll, MacOS: libjep.jnilib)
-2. Path to folder containing unpacked jep distro. 
+2. Path to folder containing unpacked jep distro.
+
+See [jep-distro-example](https://github.com/icemachined/jep-distro-example) project
 
 ## How to perform a release of new jep version
 1. Change JEP_VERSION env constant and version in build.gradle.kts to new JEP version
