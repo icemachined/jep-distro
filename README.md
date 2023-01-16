@@ -14,6 +14,6 @@ Unpack to your folder and add the following include paths to JepConifg.
 2. Path to folder containing unpacked jep distro. 
 
 ## How to perform a release of new jep version
-1. Change JEP_VERSION env constant to new JEP version
+1. Change JEP_VERSION env constant and version in build.gradle.kts to new JEP version
 2. Push next tag to this git repo to trigger release build and publish.
 3. Go to sonatype staging repository and push a maven central release.

@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.icemachined"
-version = "4.1.0"
+version = "4.1.1"
 val jepTar: Tar = tasks.create<Tar>("jep-distro") {
     into ("jep"){
         from("build/jep")
