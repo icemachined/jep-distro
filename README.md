@@ -1,8 +1,8 @@
 ![Build and test](https://github.com/icemachined/jep-distro/workflows/Build%20and%20test/badge.svg)
-![](https://img.shields.io/pypi/pyversions/Jep.svg)
-![](https://img.shields.io/pypi/l/Jep.svg)
-![](https://img.shields.io/badge/docs-wiki-orange.svg)
-![](https://img.shields.io/badge/docs-javadoc-orange.svg)
+[![](https://img.shields.io/pypi/pyversions/Jep.svg)](https://pypi.python.org/pypi/jep)
+[![](https://img.shields.io/pypi/l/Jep.svg)](http://zlib.net/zlib_license.html)
+[![](https://img.shields.io/badge/docs-wiki-orange.svg)](https://github.com/ninia/jep/wiki)
+[![](https://img.shields.io/badge/docs-javadoc-orange.svg)](https://ninia.github.io/jep/javadoc)
 
 ## Jep binaries distribution archive
 This is the build for the binaries distribution package of [JEP](https://github.com/ninia/jep/) project.
