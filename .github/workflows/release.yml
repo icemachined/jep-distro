@@ -18,6 +18,8 @@ jobs:
   install_and_collect_jep_artifacts:
     name: Install and collect
     runs-on: ${{ matrix.os }}
+    # if workflow is triggered after push of a tag, deploy full release
+    if: ${{ startsWith(github.ref, 'refs/tags/') }}
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
@@ -61,15 +63,28 @@ jobs:
         run: |
           mkdir -f jep-distro-${{ runner.os }}/jep-${{ env.JEP_VERSION }}
           cp ${{ env.pythonLocation }}/lib/site-packages/jep/jep.dll jep-distro-${{ runner.os }}/jep-${{ env.JEP_VERSION }}/
-  archive_and_build:
-    name: Archive and build
+  build_and_publish:
+    name: Build and publish release
     runs-on: ${{ matrix.os }}
+    # if workflow is triggered after push of a tag, deploy full release
+    if: ${{ startsWith(github.ref, 'refs/tags/') }}
     needs: install_and_collect_jep_artifacts
     strategy:
       matrix:
         os: [ ubuntu-latest ]
-
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          # release workflow should have access to all tags
+          fetch-depth: 0
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          distribution: temurin
+      - name: Status git before
+        run: git status
       - name: Cache jep-distro-Linux
         uses: actions/cache@v3
         with:
@@ -96,20 +111,39 @@ jobs:
             Windows-jep-distro-release
       - name: Archive jep artifacts
         run: |
-          mkdir -p jep-distro/jep
-          cp jep-distro-Linux/jep-${{ env.JEP_VERSION }}/* jep-distro/jep
-          cp jep-distro-Windows/jep-${{ env.JEP_VERSION }}/* jep-distro/jep
-          cp jep-distro-macOS/jep-${{ env.JEP_VERSION }}/* jep-distro/jep
-          mkdir build
-          tar czvf build/jep-distro-${{ env.JEP_VERSION }}.tar.gz -C jep-distro jep
-      - name: Upload artifact
-        id: upload_artifact
-        uses: actions/upload-artifact@v3
+          mkdir -p build/jep
+          cp jep-distro-Linux/jep-${{ env.JEP_VERSION }}/* build/jep
+          cp jep-distro-Windows/jep-${{ env.JEP_VERSION }}/* build/jep
+          cp jep-distro-macOS/jep-${{ env.JEP_VERSION }}/* build/jep
+      - name: Gradle release
+        uses: gradle/gradle-build-action@v2
         with:
-          name: jep-distro-${{ env.JEP_VERSION }}
-          path: build/*
-          retention-days: 1
-      - name: Cleanup
+          gradle-version: wrapper
+          cache-disabled: true
+          arguments: |
+            publishToSonatype
+            closeSonatypeStagingRepository
+            --build-cache
+            -PgprUser=${{ github.actor }}
+            -PgprKey=${{ secrets.GITHUB_TOKEN }}
+      - name: Create github release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Upload jep distro
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/distributions/*
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
+      - name: Cleanup release caches
         run: |
           gh extension install actions/gh-actions-cache
           
@@ -127,75 +161,3 @@ jobs:
           echo "Done"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  github_release:
-    needs: archive_and_build
-    # release is created only for tags
-    if: ${{ startsWith(github.ref, 'refs/tags/') }}
-    name: Create Github Release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: jep-distro-${{ env.JEP_VERSION }}
-          path: tmpFolder
-      - name: Create Github Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-      - name: Upload jep distro
-        id: upload-release-asset
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: tmpFolder/*
-          tag: ${{ github.ref }}
-          overwrite: true
-          file_glob: true
-  gradle_release:
-    needs: archive_and_build
-    # release is created only for tags
-    if: ${{ startsWith(github.ref, 'refs/tags/') }}
-    name: Create maven release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          # release workflow should have access to all tags
-          fetch-depth: 0
-      - name: Set up JDK 11
-        uses: actions/setup-java@v3
-        with:
-          java-version: 11
-          distribution: temurin
-      - name: Status git before
-        run: git status
-      - name: Download artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: jep-distro-${{ env.JEP_VERSION }}
-          path: build
-      - name: unzip jep
-        run: |
-          cd build
-          tar xzvf jep-distro-${{ env.JEP_VERSION }}.tar.gz
-      - name: gradle release
-        # if workflow is triggered after push of a tag, deploy full release
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
-        uses: gradle/gradle-build-action@v2
-        with:
-          gradle-version: wrapper
-          cache-disabled: true
-          arguments: |
-            publishToSonatype
-            closeSonatypeStagingRepository
-            --build-cache
-            -PgprUser=${{ github.actor }}
-            -PgprKey=${{ secrets.GITHUB_TOKEN }}
