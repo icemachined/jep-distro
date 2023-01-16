@@ -12,7 +12,7 @@ env:
   OSSRH_USERNAME: ${{ secrets.SONATYPE_USER }}
   OSSRH_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
   DEFAULT_PYTHON: '3.10'
-  JEP_VERSION: '4.1.0'
+  JEP_VERSION: '4.1.1'
 
 jobs:
   install_and_collect_jep_artifacts:
