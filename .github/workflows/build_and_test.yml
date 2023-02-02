@@ -64,11 +64,10 @@ jobs:
           cp ${{ env.pythonLocation }}/lib/site-packages/jep/jep.dll jep-distro-${{ runner.os }}-${{ matrix.python }}/jep-${{ env.JEP_VERSION }}/
   archive_and_build:
     name: Archive and build
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     needs: install_and_collect_jep_artifacts
     strategy:
       matrix:
-        os: [ ubuntu-latest ]
         python: ['3.9', '3.10', '3.11']
 
     steps:
@@ -128,6 +127,11 @@ jobs:
           name: jep-distro-cp${{ matrix.python }}-${{ env.JEP_VERSION }}.tgz
           path: build/distributions/*
           retention-days: 1
+  cleanup_caches:
+    name: Archive and build
+    runs-on: ubuntu-latest
+    needs: archive_and_build
+    steps:
       - name: Cleanup
         run: |
           gh extension install actions/gh-actions-cache
