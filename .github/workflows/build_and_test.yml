@@ -128,7 +128,7 @@ jobs:
           path: build/distributions/*
           retention-days: 1
   cleanup_caches:
-    name: Archive and build
+    name: Cleanup caches
     runs-on: ubuntu-latest
     needs: archive_and_build
     steps:
