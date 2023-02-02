@@ -93,30 +93,30 @@ jobs:
           distribution: temurin
       - name: Status git before
         run: git status
-      - name: Cache jep-distro-Linux-${{ matrix.python }
+      - name: Cache jep-distro-Linux-${{ matrix.python }}
         uses: actions/cache@v3
         with:
-          path: jep-distro-Linux-${{ matrix.python }
-          key: Linux-${{ matrix.python }-jep-distro-release
+          path: jep-distro-Linux-${{ matrix.python }}
+          key: Linux-${{ matrix.python }}-jep-distro-release
           enableCrossOsArchive: true
           restore-keys: |
-            Linux-${{ matrix.python }-jep-distro-release
-      - name: Cache jep-distro-macOS-${{ matrix.python }
+            Linux-${{ matrix.python }}-jep-distro-release
+      - name: Cache jep-distro-macOS-${{ matrix.python }}
         uses: actions/cache@v3
         with:
-          path: jep-distro-macOS-${{ matrix.python }
-          key: macOS-${{ matrix.python }-jep-distro-release
+          path: jep-distro-macOS-${{ matrix.python }}
+          key: macOS-${{ matrix.python }}-jep-distro-release
           enableCrossOsArchive: true
           restore-keys: |
-            macOS-${{ matrix.python }-jep-distro-release
-      - name: Cache jep-distro-Windows-${{ matrix.python }
+            macOS-${{ matrix.python }}-jep-distro-release
+      - name: Cache jep-distro-Windows-${{ matrix.python }}
         uses: actions/cache@v3
         with:
-          path: jep-distro-Windows-${{ matrix.python }
-          key: Windows-${{ matrix.python }-jep-distro-release
+          path: jep-distro-Windows-${{ matrix.python }}
+          key: Windows-${{ matrix.python }}-jep-distro-release
           enableCrossOsArchive: true
           restore-keys: |
-            Windows-${{ matrix.python }-jep-distro-release
+            Windows-${{ matrix.python }}-jep-distro-release
       - name: Archive jep artifacts
         run: |
           mkdir -p build/jep
