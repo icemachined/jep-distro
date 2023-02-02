@@ -41,27 +41,27 @@ jobs:
       - name: Cache jep-distro
         uses: actions/cache@v3
         with:
-          path: jep-distro-${{ runner.os }}
+          path: jep-distro-${{ runner.os }}-${{ matrix.python }}
           key: ${{ runner.os }}-jep-distro
           enableCrossOsArchive: true
           restore-keys: |
-            ${{ runner.os }}-jep-distro
+            ${{ runner.os }}-${{ matrix.python }}-jep-distro
       - name: Copy jep artifacts on Linux
         if: ${{ runner.os == 'Linux' }}
         run: |
-          mkdir -p jep-distro-${{ runner.os }}/jep-${{ env.JEP_VERSION }}
-          cp -L ${{ env.pythonLocation }}/lib/python${{ matrix.python }}/site-packages/jep/libjep.so jep-distro-${{ runner.os }}/jep-${{ env.JEP_VERSION }}/
-          cp ${{ env.pythonLocation }}/lib/python${{ matrix.python }}/site-packages/jep/*.py jep-distro-${{ runner.os }}/jep-${{ env.JEP_VERSION }}/
+          mkdir -p jep-distro-${{ runner.os }}-${{ matrix.python }}/jep-${{ env.JEP_VERSION }}
+          cp -L ${{ env.pythonLocation }}/lib/python${{ matrix.python }}/site-packages/jep/libjep.so jep-distro-${{ runner.os }}-${{ matrix.python }}/jep-${{ env.JEP_VERSION }}/
+          cp ${{ env.pythonLocation }}/lib/python${{ matrix.python }}/site-packages/jep/*.py jep-distro-${{ runner.os }}-${{ matrix.python }}/jep-${{ env.JEP_VERSION }}/
       - name: Copy jep artifacts on macOS
         if: ${{ runner.os == 'macOS' }}
         run: |
-          mkdir -p jep-distro-${{ runner.os }}/jep-${{ env.JEP_VERSION }}
-          cp ${{ env.pythonLocation }}/lib/python${{ matrix.python }}/site-packages/jep/libjep.jnilib jep-distro-${{ runner.os }}/jep-${{ env.JEP_VERSION }}/
+          mkdir -p jep-distro-${{ runner.os }}-${{ matrix.python }}/jep-${{ env.JEP_VERSION }}
+          cp ${{ env.pythonLocation }}/lib/python${{ matrix.python }}/site-packages/jep/libjep.jnilib jep-distro-${{ runner.os }}-${{ matrix.python }}/jep-${{ env.JEP_VERSION }}/
       - name: Copy jep artifacts on Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
-          mkdir -f jep-distro-${{ runner.os }}/jep-${{ env.JEP_VERSION }}
-          cp ${{ env.pythonLocation }}/lib/site-packages/jep/jep.dll jep-distro-${{ runner.os }}/jep-${{ env.JEP_VERSION }}/
+          mkdir -f jep-distro-${{ runner.os }}-${{ matrix.python }}/jep-${{ env.JEP_VERSION }}
+          cp ${{ env.pythonLocation }}/lib/site-packages/jep/jep.dll jep-distro-${{ runner.os }}-${{ matrix.python }}/jep-${{ env.JEP_VERSION }}/
   archive_and_build:
     name: Archive and build
     runs-on: ${{ matrix.os }}
@@ -69,6 +69,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest ]
+        python: ['3.9', '3.10', '3.11']
 
     steps:
       - name: Checkout
@@ -83,43 +84,43 @@ jobs:
           distribution: temurin
       - name: Status git before
         run: git status
-      - name: Cache jep-distro-Linux
+      - name: Cache jep-distro-Linux-${{ matrix.python }}
         uses: actions/cache@v3
         with:
-          path: jep-distro-Linux
-          key: Linux-jep-distro
+          path: jep-distro-Linux-${{ matrix.python }}
+          key: Linux-${{ matrix.python }}-jep-distro
           enableCrossOsArchive: true
           restore-keys: |
-            Linux-jep-distro
-      - name: Cache jep-distro-macOS
+            Linux-${{ matrix.python }}-jep-distro
+      - name: Cache jep-distro-macOS-${{ matrix.python }}
         uses: actions/cache@v3
         with:
-          path: jep-distro-macOS
-          key: macOS-jep-distro
+          path: jep-distro-macOS-${{ matrix.python }}
+          key: macOS-${{ matrix.python }}-jep-distro
           enableCrossOsArchive: true
           restore-keys: |
-            macOS-jep-distro
-      - name: Cache jep-distro-Windows
+            macOS-${{ matrix.python }}-jep-distro
+      - name: Cache jep-distro-Windows-${{ matrix.python }}
         uses: actions/cache@v3
         with:
-          path: jep-distro-Windows
-          key: Windows-jep-distro
+          path: jep-distro-Windows-${{ matrix.python }}
+          key: Windows-${{ matrix.python }}-jep-distro
           enableCrossOsArchive: true
           restore-keys: |
-            Windows-jep-distro
+            Windows-${{ matrix.python }}-jep-distro
       - name: Archive jep artifacts
         run: |
           mkdir -p build/jep
-          cp jep-distro-Linux/jep-${{ env.JEP_VERSION }}/* build/jep
-          cp jep-distro-Windows/jep-${{ env.JEP_VERSION }}/* build/jep
-          cp jep-distro-macOS/jep-${{ env.JEP_VERSION }}/* build/jep
+          cp jep-distro-Linux-${{ matrix.python }}/jep-${{ env.JEP_VERSION }}/* build/jep
+          cp jep-distro-Windows-${{ matrix.python }}/jep-${{ env.JEP_VERSION }}/* build/jep
+          cp jep-distro-macOS-${{ matrix.python }}/jep-${{ env.JEP_VERSION }}/* build/jep
       - name: gradle build
         uses: gradle/gradle-build-action@v2
         with:
           gradle-version: wrapper
           cache-disabled: true
           arguments: |
-            build
+            build -Ppython.suffix=${{ matrix.python }}
       - name: Upload artifact
         id: upload_artifact
         uses: actions/upload-artifact@v3
@@ -135,7 +136,8 @@ jobs:
           BRANCH=${{ github.ref }}
 
           echo "Fetching list of cache key"
-          cacheKeysForPR="Windows-jep-distro Linux-jep-distro macOS-jep-distro"
+          cacheKeysForPR=cacheKeysForPR=$(gh actions-cache list -R $REPO -B $BRANCH | cut -f 1 | grep *-*-jep-distro )
+          echo "Fetched $cacheKeysForPR"
 
           ## Setting this to not fail the workflow while deleting cache keys. 
           set +e
