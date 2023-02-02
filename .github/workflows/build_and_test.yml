@@ -42,7 +42,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: jep-distro-${{ runner.os }}-${{ matrix.python }}
-          key: ${{ runner.os }}-jep-distro
+          key: ${{ runner.os }}-${{ matrix.python }}-jep-distro
           enableCrossOsArchive: true
           restore-keys: |
             ${{ runner.os }}-${{ matrix.python }}-jep-distro
