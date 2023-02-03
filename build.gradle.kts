@@ -14,6 +14,7 @@ val jepTar: Tar = tasks.create<Tar>(distro_name) {
         from("build/jep")
         include ("*.*")
     }
+    archiveBaseName.set(distro_name)
     compression = Compression.GZIP
 }
 val gzArtifact = artifacts.add("archives", jepTar)
