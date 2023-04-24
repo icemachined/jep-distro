@@ -7,7 +7,6 @@ on:
       - 'master'
 env:
   JEP_VERSION: '4.1.1'
-  AGENT_TOOLSDIRECTORY: '/opt/hostedtoolcache'
 
 jobs:
   install_and_collect_jep_artifacts:
@@ -22,6 +21,9 @@ jobs:
 
     container:
       image: ubuntu:18.04
+      env:
+        AGENT_TOOLSDIRECTORY: '/opt/hostedtoolcache'
+        RUNNER_TOOL_CACHE: '/opt/hostedtoolcache'
 
     steps:
       - name: Display APT version
