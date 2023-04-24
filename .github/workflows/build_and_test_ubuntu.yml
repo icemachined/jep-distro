@@ -59,7 +59,13 @@ jobs:
       - name: Install dependencies
         run: |
           echo $PATH
-          ls -al /__t/Python/3.10.9/x64
+          export LD_LIBRARY_PATH=/__t/Python/3.10.9/x64/lib:$LD_LIBRARY_PATH
+          export CCE_PYTHON_LD_LIBRARY_PATH=/__t/Python/3.10.9/x64/lib
+          echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
+          echo "CCE_PYTHON_LD_LIBRARY_PATH: $CCE_PYTHON_LD_LIBRARY_PATH"
+          echo "RUNNER_TOOL_CACHE: $RUNNER_TOOL_CACHE"
+          echo "AGENT_TOOLSDIRECTORY: $AGENT_TOOLSDIRECTORY"
+          ls -al /__t/Python/3.10.9/x64/lib
           pip3 install jep==${{ env.JEP_VERSION }} --use-pep517
       - name: Use GNU tar
         if: ${{ runner.os == 'Windows' }}
