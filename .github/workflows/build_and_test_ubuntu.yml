@@ -52,11 +52,14 @@ jobs:
           echo $PATH
           echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
           mkdir -p /opt/hostedtoolcache
+          ls -al /opt/hostedtoolcache
           echo "RUNNER_TOOL_CACHE: $RUNNER_TOOL_CACHE"
           echo "AGENT_TOOLSDIRECTORY: $AGENT_TOOLSDIRECTORY"
       - name: Set up Python ${{ matrix.python }}
         id: python
         uses: actions/setup-python@v3.0.0
+        env:
+          AGENT_TOOLSDIRECTORY: '/opt/hostedtoolcache'
         with:
           python-version: ${{ matrix.python-version }}
       - name: Set up JDK 11
