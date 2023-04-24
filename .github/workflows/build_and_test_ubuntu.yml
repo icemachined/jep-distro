@@ -46,6 +46,14 @@ jobs:
           apt-get --yes upgrade
           apt-get --yes install build-essential
         shell: bash
+      - name: Setup hostedtoolcache
+        run: |
+          echo $PATH
+          echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
+          mkdir -p /opt/hostedtoolcache
+          export AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache
+          echo "RUNNER_TOOL_CACHE: $RUNNER_TOOL_CACHE"
+          echo "AGENT_TOOLSDIRECTORY: $AGENT_TOOLSDIRECTORY"
       - name: Set up Python ${{ matrix.python }}
         id: python
         uses: actions/setup-python@v3.0.0
@@ -59,8 +67,6 @@ jobs:
       - name: Install dependencies
         run: |
           echo $PATH
-          export LD_LIBRARY_PATH=/__t/Python/3.10.9/x64/lib:$LD_LIBRARY_PATH
-          export CCE_PYTHON_LD_LIBRARY_PATH=/__t/Python/3.10.9/x64/lib
           echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
           echo "CCE_PYTHON_LD_LIBRARY_PATH: $CCE_PYTHON_LD_LIBRARY_PATH"
           mkdir -p /opt/hostedtoolcache
