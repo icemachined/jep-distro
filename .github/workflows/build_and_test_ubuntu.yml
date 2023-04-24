@@ -63,7 +63,7 @@ jobs:
       - name: Install dependencies
         run: |
           echo $PATH
-          find /__t/Python -name "python3.10.so"
+          ls -al /__t/Python/3.10.9/x64
           pip3 install jep==${{ env.JEP_VERSION }} --use-pep517
       - name: Use GNU tar
         if: ${{ runner.os == 'Windows' }}
