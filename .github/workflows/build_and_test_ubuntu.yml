@@ -27,6 +27,29 @@ jobs:
       image: ubuntu:18.04
 
     steps:
+      - name: Display APT version
+        run: |
+          echo '```'         >>${GITHUB_STEP_SUMMARY}
+          apt-get --version  >>${GITHUB_STEP_SUMMARY}
+          echo '```'         >>${GITHUB_STEP_SUMMARY}
+        shell: bash
+
+      - name: Configure APT
+        run: |
+          # Ignore KEYEXPIRED errors
+          ls -al /etc/apt/apt.conf.d/
+          ls -al /etc/apt/
+        shell: bash
+
+      - name: Install dependencies
+        continue-on-error: true
+        run: |
+          # Don't abort the step if apt returns a non-zero status
+          set +e
+          apt-get --yes update
+          apt-get --yes upgrade
+          apt-get --yes install build-essential
+        shell: bash
       - name: Set up Python ${{ matrix.python }}
         id: python
         uses: actions/setup-python@v3.0.0
