@@ -22,6 +22,9 @@ jobs:
     container:
       image: ubuntu:18.04
 
+    env:
+      AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
+
     steps:
       - name: Display APT version
         run: |
@@ -51,7 +54,6 @@ jobs:
           echo $PATH
           echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
           mkdir -p /opt/hostedtoolcache
-          export AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache
           echo "RUNNER_TOOL_CACHE: $RUNNER_TOOL_CACHE"
           echo "AGENT_TOOLSDIRECTORY: $AGENT_TOOLSDIRECTORY"
       - name: Set up Python ${{ matrix.python }}
