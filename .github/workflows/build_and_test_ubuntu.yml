@@ -62,6 +62,10 @@ jobs:
           distribution: temurin
       - name: Install dependencies
         run: |
+          echo $PATH
+          which python
+          which python${{ matrix.python }}
+          ls -al /__t/Python/*/x64/lib/python*
           pip3 install jep==${{ env.JEP_VERSION }} --use-pep517
       - name: Use GNU tar
         if: ${{ runner.os == 'Windows' }}
