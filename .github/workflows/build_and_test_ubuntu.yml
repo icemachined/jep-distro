@@ -1,4 +1,4 @@
-name: Build and test
+name: Build and test ubuntu 18
 
 on:
   pull_request:
@@ -11,10 +11,9 @@ env:
 jobs:
   install_and_collect_jep_artifacts:
     name: Install and collect
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
         python: ['3.9', '3.10', '3.11']
         include:
           - python: '3.9'
