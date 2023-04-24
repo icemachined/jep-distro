@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ['3.9', '3.10', '3.11']
+        python: ['3.10']
         include:
           - python: '3.9'
             python-version: '3.9.13'
@@ -63,9 +63,7 @@ jobs:
       - name: Install dependencies
         run: |
           echo $PATH
-          which python
-          which python${{ matrix.python }}
-          ls -al /__t/Python/*/x64/lib/python*
+          ls -al /__t/Python/3.9.13/x64/bin/*
           pip3 install jep==${{ env.JEP_VERSION }} --use-pep517
       - name: Use GNU tar
         if: ${{ runner.os == 'Windows' }}
