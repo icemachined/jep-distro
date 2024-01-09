@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.icemachined.buildutils.*
 
 plugins {
@@ -7,11 +6,12 @@ plugins {
 }
 
 group = "com.icemachined"
-version = "4.1.1"
-val distro_name = "jep-distro-cp${project.property("python.suffix")}"
+version = "4.2.0"
+val cp_suffix = "cp${project.property("python.suffix")}"
+val distro_name = "jep-distro-$cp_suffix"
 val jepTar: Tar = tasks.create<Tar>(distro_name) {
     into ("jep"){
-        from("build/jep")
+        from("build/jep", "jep/arm64/$version/$cp_suffix")
         include ("*.*")
     }
     archiveBaseName.set(distro_name)
