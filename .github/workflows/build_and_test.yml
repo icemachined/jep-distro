@@ -65,7 +65,7 @@ jobs:
         if: ${{ runner.os == 'macOS' }}
         run: |
           mkdir -p jep-distro-${{ runner.os }}-${{ matrix.python }}/jep-${{ env.JEP_VERSION }}
-          cp ${{ env.pythonLocation }}/lib/python${{ matrix.python }}/site-packages/jep/libjep.jnilib jep-distro-${{ runner.os }}-${{ matrix.python }}/jep-${{ env.JEP_VERSION }}/libjep.intel.jnilib
+          cp ${{ env.pythonLocation }}/lib/python${{ matrix.python }}/site-packages/jep/libjep.jnilib jep-distro-${{ runner.os }}-${{ matrix.python }}/jep-${{ env.JEP_VERSION }}/libjep.x86_64.jnilib
       - name: Copy jep artifacts on Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
