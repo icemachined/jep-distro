@@ -11,12 +11,12 @@ You need to have on your Mac with M processors:
 1. `pyenv install 3.x`
 2. `export PATH=~/.pyenv/versions/3.x.x/bin:$PATH`
 3. `pip3 install setuptools wheel numpy`
-4. `pip3 install jep==<JEP_VERSION> --no-build-isolation --log jep.log`
-   here we switch off isolation because for jep to find includes in installed numpy 
-   it needs to be able to find it. And this also requires 
+4. `pip3 install jep==<JEP_VERSION> --no-build-isolation --log jep.log` <br>
+   Here we switch off isolation because for jep to find includes in installed numpy 
+   it needs to be able to find numpy module path. <br> And this also requires 
    manual installation setuptools and wheel on previous step 
-5. `grep "numpy include found at" jep.log`
-   Check that numpy support was really switched on.
+5. `grep "numpy include found at" jep.log` <br>
+   Check that numpy support was really switched on. <br>
    Note that --log option only appends data to the file without cleaning
 6. `cp ~/.pyenv/versions/3.x.x/lib/python3.x/site-packages/jep/libjep.jnilib /Users/<name>/IdeaProjects/jep-distro/jep/arm64/<JEP_VERSION>/cp3.x/libjep.arm64.jnilib`
 
