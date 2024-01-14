@@ -6,16 +6,17 @@
 
 ## Jep binaries distribution archive
 This is the build for the binaries distribution package of [JEP](https://github.com/ninia/jep/) project.
-Currently you can install jep binaries using ```pip install jep```, but this requires preper build tools for each of the platform because it is distributed in form of source files.
+Currently you can install jep binaries using ```pip install jep```, but this requires proper build tools for each of the platform because it is distributed in form of source files.
 This distro simplifies jep usage. 
 You can use this as a maven dependency. 
-Unpack to your folder and add the following include paths to JepConifg.
-1. Path to platform dependent library (Lunux: libjep.so, Windows: jep.dll, MacOS: libjep.jnilib)
+Unpack to your folder and add the following include paths to JepConfig.
+1. Path to platform dependent library (Lunux: libjep.so, Windows: jep.dll, MacOS: libjep.x86_64.jnilib for Intel or libjep.arm64.jnilib for M1/M2)
 2. Path to folder containing unpacked jep distro.
 
 See [jep-distro-example](https://github.com/icemachined/jep-distro-example) project
 
 ## How to perform a release of new jep version
 1. Change JEP_VERSION env constant and version in build.gradle.kts to new JEP version
-2. Push next tag to this git repo to trigger release build and publish.
-3. Go to sonatype staging repository and push a maven central release.
+2. Build arm64 binaries manually and put into the project. See instruction [here](ARM64BUILD.md).
+3. Push next tag to this git repo to trigger release build and publish.
+4. Go to sonatype staging repository and push a maven central release.
