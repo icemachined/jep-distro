@@ -40,7 +40,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip3 install numpy
-          pip3 install jep==${{ env.JEP_VERSION }} --use-pep517
+          pip3 install jep==${{ env.JEP_VERSION }} --use-pep517 --no-build-isolation --verbose
       - name: Use GNU tar
         if: ${{ runner.os == 'Windows' }}
         shell: cmd
